@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ink & Shadow — Book Reviews</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0e0b0f;
+      color: #e8dfd0;
+      font-family: 'Lora', Georgia, serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .grain {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+    /* NAV */
+    nav {
+      border-bottom: 1px solid #2a2030;
+      padding: 1.2rem 0;
+      position: sticky; top: 0;
+      background: rgba(14,11,15,0.95);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #c9a96e; letter-spacing: 0.04em; cursor: pointer; }
+    .logo span { font-style: italic; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: #9c8fa0; font-size: 0.85rem; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.2s; cursor: pointer; }
+    .nav-links a:hover { color: #c9a96e; }
+
+    /* HERO */
+    .hero {
+      padding: 5rem 0 3rem;
+      text-align: center;
+      border-bottom: 1px solid #1c1520;
+    }
+    .hero-tag { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: #c9a96e; margin-bottom: 1.2rem; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 6vw, 4.5rem); font-weight: 400; color: #f0e8d8; line-height: 1.15; margin-bottom: 1rem; }
+    .hero h1 em { font-style: italic; color: #c9a96e; }
+    .hero p { color: #7a6e7e; font-size: 1rem; max-width: 500px; margin: 0 auto 2rem; line-height: 1.7; }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { background: #c9a96e; color: #0e0b0f; padding: 0.7rem 1.8rem; border: none; font-family: 'Lora', serif; font-size: 0.88rem; letter-spacing: 0.06em; cursor: pointer; border-radius: 2px; font-weight: 500; transition: background 0.2s; }
+    .btn-primary:hover { background: #dbbf88; }
+    .btn-ghost { background: transparent; color: #c9a96e; padding: 0.7rem 1.8rem; border: 1px solid #3a2e40; font-family: 'Lora', serif; font-size: 0.88rem; letter-spacing: 0.06em; cursor: pointer; border-radius: 2px; transition: border-color 0.2s; }
+    .btn-ghost:hover { border-color: #c9a96e; }
+
+    /* FILTERS */
+    .filters { display: flex; gap: 0.6rem; padding: 1.8rem 0; flex-wrap: wrap; }
+    .filter-btn { background: transparent; border: 1px solid #2a2030; color: #7a6e7e; padding: 0.4rem 1rem; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: all 0.2s; font-family: 'Lora', serif; }
+    .filter-btn:hover, .filter-btn.active { border-color: #c9a96e; color: #c9a96e; background: rgba(201,169,110,0.07); }
+
+    /* CARDS */
+    .section-label { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: #5a4e60; margin-bottom: 1.5rem; padding-bottom: 0.7rem; border-bottom: 1px solid #1c1520; }
+    .featured-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5px; margin-bottom: 1.5px; }
+    .review-card { background: #130f17; border: 1px solid #1e1824; padding: 2rem; cursor: pointer; transition: border-color 0.25s; position: relative; overflow: hidden; }
+    .review-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 0; background: #c9a96e; transition: height 0.3s; }
+    .review-card:hover { border-color: #2e2538; }
+    .review-card:hover::before { height: 100%; }
+    .card-genre { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: #5a4e60; margin-bottom: 0.8rem; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1.45rem; color: #f0e8d8; margin-bottom: 0.3rem; line-height: 1.2; }
+    .card-title.sm { font-size: 1.1rem; }
+    .card-author { font-size: 0.8rem; color: #7a6e7e; margin-bottom: 1rem; font-style: italic; }
+    .stars { display: flex; gap: 3px; margin-bottom: 1rem; }
+    .star { width: 12px; height: 12px; background: #c9a96e; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+    .star.half { background: linear-gradient(90deg, #c9a96e 50%, #2a2030 50%); }
+    .star.empty { background: #2a2030; }
+    .card-excerpt { font-size: 0.88rem; color: #7a6e7e; line-height: 1.75; margin-bottom: 1.2rem; }
+    .card-excerpt.lg { font-size: 0.95rem; }
+    .card-meta { display: flex; gap: 1rem; align-items: center; }
+    .reviewer-dot { width: 28px; height: 28px; border-radius: 50%; background: #2a2030; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: #c9a96e; font-weight: 500; }
+    .reviewer-name { font-size: 0.75rem; color: #5a4e60; }
+    .read-more { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #c9a96e; text-decoration: none; cursor: pointer; margin-left: auto; }
+
+    .cards-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5px; margin-bottom: 3rem; }
+
+    /* QUOTE */
+    .quote-block { border-left: 2px solid #c9a96e; padding: 1.5rem 2rem; margin: 3rem 0; background: #130f17; }
+    .quote-block blockquote { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-style: italic; color: #c9a96e; line-height: 1.6; margin-bottom: 0.8rem; }
+    .quote-block cite { font-size: 0.75rem; color: #5a4e60; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* LAYOUT */
+    .main-aside { display: grid; grid-template-columns: 1fr 280px; gap: 3rem; }
+
+    /* TRENDING */
+    .trending-list { list-style: none; }
+    .trending-item { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem 0; border-bottom: 1px solid #1c1520; cursor: pointer; transition: all 0.2s; }
+    .trending-item:hover .t-title { color: #c9a96e; }
+    .t-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #1e1824; font-weight: 700; min-width: 2rem; line-height: 1; }
+    .t-title { font-size: 0.9rem; color: #c4b8cc; line-height: 1.4; transition: color 0.2s; }
+    .t-author { font-size: 0.75rem; color: #5a4e60; font-style: italic; margin-top: 0.2rem; }
+
+    /* RATING WIDGET */
+    .rating-widget { background: #130f17; border: 1px solid #1e1824; padding: 1.5rem; border-radius: 2px; }
+    .rating-widget h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: #c4b8cc; margin-bottom: 1rem; }
+    .rating-input input[type=text] { width: 100%; background: #0e0b0f; border: 1px solid #2a2030; color: #e8dfd0; padding: 0.6rem 0.8rem; font-family: 'Lora', serif; font-size: 0.85rem; margin-bottom: 0.7rem; border-radius: 2px; outline: none; }
+    .rating-input input:focus { border-color: #c9a96e; }
+    .star-select { display: flex; gap: 6px; margin-bottom: 0.8rem; }
+    .star-sel { width: 20px; height: 20px; background: #2a2030; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); cursor: pointer; transition: background 0.15s; }
+    .star-sel.lit { background: #c9a96e; }
+
+    /* NEWSLETTER */
+    .newsletter { background: #130f17; border: 1px solid #1e1824; padding: 1.5rem; margin-bottom: 2rem; }
+    .newsletter h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: #c9a96e; margin-bottom: 0.4rem; }
+    .newsletter p { font-size: 0.8rem; color: #5a4e60; margin-bottom: 1rem; line-height: 1.6; }
+    .newsletter input { width: 100%; background: #0e0b0f; border: 1px solid #2a2030; color: #e8dfd0; padding: 0.6rem 0.8rem; font-family: 'Lora', serif; font-size: 0.82rem; margin-bottom: 0.6rem; border-radius: 2px; outline: none; }
+    .newsletter input:focus { border-color: #c9a96e; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid #1c1520; padding: 2rem 0; margin-top: 3rem; text-align: center; }
+    footer p { font-size: 0.75rem; color: #3a2e40; letter-spacing: 0.08em; }
+    footer span { color: #5a4e60; }
+
+    @media (max-width: 700px) {
+      .featured-grid, .cards-row, .main-aside { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo"><span>Ink</span> & Shadow</div>
+    <ul class="nav-links">
+      <li><a href="#">Reviews</a></li>
+      <li><a href="#">Dark Romance</a></li>
+      <li><a href="#">Thrillers</a></li>
+      <li><a href="#">Lists</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="hero">
+    <p class="hero-tag">✦ For readers who dare go darker ✦</p>
+    <h1>Where every page<br>has a <em>shadow.</em></h1>
+    <p>Honest reviews for dark romance, gothic fiction, and psychological thrillers. No spoilers. No sugarcoating.</p>
+    <div class="hero-btns">
+      <button class="btn-primary">Browse Reviews</button>
+      <button class="btn-ghost">Submit a Book</button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active">All</button>
+    <button class="filter-btn">Dark Romance</button>
+    <button class="filter-btn">Gothic</button>
+    <button class="filter-btn">Thriller</button>
+    <button class="filter-btn">Horror</button>
+    <button class="filter-btn">Paranormal</button>
+    <button class="filter-btn">5 Stars Only</button>
+  </div>
+
+  <div class="main-aside">
+    <div>
+      <p class="section-label">Featured reviews</p>
+      <div class="featured-grid">
+        <div class="review-card">
+          <p class="card-genre">Dark Romance · Stalker</p>
+          <h2 class="card-title">Haunting Adeline</h2>
+          <p class="card-author">H. D. Carlton</p>
+          <div class="stars">
+            <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+          </div>
+          <p class="card-excerpt lg">An addictive, deeply dark spiral into obsession and Gothic atmosphere. Carlton doesn't flinch — Zade is terrifying, magnetic, and completely impossible to put down. The Victorian manor setting is a character all its own. A cliffhanger ending that will wreck you.</p>
+          <div class="card-meta">
+            <div class="reviewer-dot">SR</div>
+            <span class="reviewer-name">Snehaline R.</span>
+            <span class="read-more">Read full →</span>
+          </div>
+        </div>
+        <div class="review-card">
+          <p class="card-genre">Psychological Thriller</p>
+          <h2 class="card-title sm">Verity</h2>
+          <p class="card-author">Colleen Hoover</p>
+          <div class="stars">
+            <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star half"></div>
+          </div>
+          <p class="card-excerpt">A manuscript that shouldn't exist, a truth that can't be trusted. CoHo's darkest, most twisted work. The ending splits readers in half — which side are you on?</p>
+          <div class="card-meta">
+            <div class="reviewer-dot">MK</div>
+            <span class="reviewer-name">M. Kapoor</span>
+            <span class="read-more">Read full →</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-row">
+        <div class="review-card">
+          <p class="card-genre">Dark Fantasy</p>
+          <h2 class="card-title sm">A Touch of Darkness</h2>
+          <p class="card-author">Scarlett St. Clair</p>
+          <div class="stars">
+            <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star empty"></div>
+          </div>
+          <p class="card-excerpt">Persephone meets Hades in a retelling dripping with shadows and chemistry. Lush, intoxicating, and impossible to stop.</p>
+          <div class="card-meta">
+            <div class="reviewer-dot">AP</div>
+            <span class="reviewer-name">A. Priya</span>
+            <span class="read-more">Read →</span>
+          </div>
+        </div>
+        <div class="review-card">
+          <p class="card-genre">Gothic Romance</p>
+          <h2 class="card-title sm">Mexican Gothic</h2>
+          <p class="card-author">Silvia Moreno-Garcia</p>
+          <div class="stars">
+            <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+          </div>
+          <p class="card-excerpt">The kind of Gothic that gets under your skin. A crumbling mansion, family secrets, and a heroine who refuses to break. Masterful.</p>
+          <div class="card-meta">
+            <div class="reviewer-dot">DL</div>
+            <span class="reviewer-name">D. Liang</span>
+            <span class="read-more">Read →</span>
+          </div>
+        </div>
+        <div class="review-card">
+          <p class="card-genre">Horror · Literary</p>
+          <h2 class="card-title sm">Plain Bad Heroines</h2>
+          <p class="card-author">Emily M. Danforth</p>
+          <div class="stars">
+            <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star half"></div>
+          </div>
+          <p class="card-excerpt">Dual timelines, cursed boarding schools, and queer horror woven beautifully. Dense, rich, and deeply unsettling in all the right ways.</p>
+          <div class="card-meta">
+            <div class="reviewer-dot">RN</div>
+            <span class="reviewer-name">R. Nair</span>
+            <span class="read-more">Read →</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="quote-block">
+        <blockquote>"The best dark romance doesn't ask you to approve — it asks you to feel."</blockquote>
+        <cite>— Ink & Shadow editorial</cite>
+      </div>
+    </div>
+
+    <aside>
+      <div class="newsletter">
+        <h3>Stay in the shadows.</h3>
+        <p>Weekly reviews, reading lists, and dark fiction recommendations — straight to your inbox.</p>
+        <input type="text" placeholder="your@email.com" />
+        <button class="btn-primary" style="width:100%">Subscribe</button>
+      </div>
+
+      <p class="section-label">Trending this week</p>
+      <ul class="trending-list">
+        <li class="trending-item">
+          <span class="t-num">01</span>
+          <div><div class="t-title">Haunting Adeline</div><div class="t-author">H. D. Carlton</div></div>
+        </li>
+        <li class="trending-item">
+          <span class="t-num">02</span>
+          <div><div class="t-title">Corrupt</div><div class="t-author">Penelope Douglas</div></div>
+        </li>
+        <li class="trending-item">
+          <span class="t-num">03</span>
+          <div><div class="t-title">Icebreaker</div><div class="t-author">Hannah Grace</div></div>
+        </li>
+        <li class="trending-item">
+          <span class="t-num">04</span>
+          <div><div class="t-title">Zodiac Academy</div><div class="t-author">Caroline Peckham</div></div>
+        </li>
+        <li class="trending-item">
+          <span class="t-num">05</span>
+          <div><div class="t-title">Captive in the Dark</div><div class="t-author">C. J. Roberts</div></div>
+        </li>
+      </ul>
+
+      <br>
+      <p class="section-label">Leave a rating</p>
+      <div class="rating-widget">
+        <h3>Rate a book</h3>
+        <div class="rating-input">
+          <input type="text" placeholder="Book title..." id="book-input" />
+          <div class="star-select" id="star-select">
+            <div class="star-sel" data-i="1"></div>
+            <div class="star-sel" data-i="2"></div>
+            <div class="star-sel" data-i="3"></div>
+            <div class="star-sel" data-i="4"></div>
+            <div class="star-sel" data-i="5"></div>
+          </div>
+          <button class="btn-primary" style="width:100%;font-size:0.8rem;" onclick="submitRating()">Submit Rating</button>
+        </div>
+        <div id="rating-confirm" style="display:none; font-size:0.8rem; color:#c9a96e; margin-top:0.5rem;"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Ink & Shadow · <span>A space for readers who love the dark</span> · © 2026</p>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  let selectedStars = 0;
+  const stars = document.querySelectorAll('.star-sel');
+  stars.forEach(star => {
+    star.addEventListener('mouseover', () => {
+      const i = +star.dataset.i;
+      stars.forEach(s => s.classList.toggle('lit', +s.dataset.i <= i));
+    });
+    star.addEventListener('mouseout', () => {
+      stars.forEach(s => s.classList.toggle('lit', +s.dataset.i <= selectedStars));
+    });
+    star.addEventListener('click', () => {
+      selectedStars = +star.dataset.i;
+      stars.forEach(s => s.classList.toggle('lit', +s.dataset.i <= selectedStars));
+    });
+  });
+
+  function submitRating() {
+    const title = document.getElementById('book-input').value.trim();
+    const conf = document.getElementById('rating-confirm');
+    if (!title || !selectedStars) {
+      conf.style.display = 'block';
+      conf.style.color = '#7a6e7e';
+      conf.textContent = 'Please enter a title and select a rating.';
+      return;
+    }
+    conf.style.display = 'block';
+    conf.style.color = '#c9a96e';
+    conf.textContent = '✦ Rating submitted for "' + title + '" — ' + selectedStars + '/5 stars.';
+    document.getElementById('book-input').value = '';
+    selectedStars = 0;
+    stars.forEach(s => s.classList.remove('lit'));
+  }
+</script>
+
+</body>
+</html>
